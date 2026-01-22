@@ -268,181 +268,200 @@ const CheckProgress = () => {
   const cardClass =
     theme === "dark" ? "bg-gray-800 text-white" : "bg-white text-gray-900";
 
-  return (
-    <div className={`p-6 min-h-screen ${bgClass}`}>
-      <h1 className="text-2xl font-bold mb-4">Check Progress</h1>
-      {loading ? (
-        <p>Loading progress...</p>
-      ) : (
-        <div className="space-y-6">
-          {/* Weekly Bar Chart */}
-          <div className={`p-4 rounded-xl shadow-md ${cardClass}`}>
-            <h2 className="text-lg font-semibold mb-2">Last 7 Days Progress</h2>
-            <p className="text-sm mb-4">
-              Number of habits completed each day in the last week.
+return (
+  <div className={`p-3 sm:p-4 md:p-6 min-h-screen ${bgClass}`}>
+    <h1 className="text-lg sm:text-xl md:text-2xl font-bold mb-4">
+      Check Progress
+    </h1>
+
+    {loading ? (
+      <p>Loading progress...</p>
+    ) : (
+      <div className="space-y-6">
+        {/* Weekly Bar Chart */}
+        <div className={`p-3 sm:p-4 rounded-xl shadow-md ${cardClass}`}>
+          <h2 className="text-base sm:text-lg font-semibold mb-1">
+            Last 7 Days Progress
+          </h2>
+          <p className="text-xs sm:text-sm mb-3">
+            Number of habits completed each day.
+          </p>
+
+          <div className="w-full h-56 sm:h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={weeklyData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis allowDecimals={false} />
+                <Tooltip />
+                <Bar
+                  dataKey="completed"
+                  fill="#4F46E5"
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Heatmap + Pie */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          {/* Monthly Heatmap */}
+          <div className={`p-3 sm:p-4 rounded-xl shadow-md ${cardClass}`}>
+            <h2 className="text-base sm:text-lg font-semibold mb-1">
+              Monthly Heatmap
+            </h2>
+            <p className="text-xs sm:text-sm mb-3">
+              Darker = more completed habits
             </p>
-            <div className="w-full h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={weeklyData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis allowDecimals={false} />
-                  <Tooltip />
-                  <Bar dataKey="completed" fill="#4F46E5" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+
+            <div className="grid grid-cols-7 gap-1 sm:gap-2 text-[10px] sm:text-xs">
+              {monthHeatmap.map((dayObj) => {
+                const intensity =
+                  dayObj.total === 0
+                    ? 0
+                    : dayObj.completed / dayObj.total;
+
+                let bg;
+                if (intensity === 0)
+                  bg = theme === "dark" ? "bg-gray-700" : "bg-gray-200";
+                else if (intensity < 0.34) bg = "bg-green-300";
+                else if (intensity < 0.67) bg = "bg-green-500";
+                else bg = "bg-green-700";
+
+                return (
+                  <div
+                    key={dayObj.dateId}
+                    className={`h-8 sm:h-10 rounded-md flex items-center justify-center ${bg}`}
+                    title={`${dayObj.completed}/${dayObj.total}`}
+                  >
+                    {dayObj.day}
+                  </div>
+                );
+              })}
             </div>
           </div>
 
-          {/* Monthly Heatmap + Category Pie */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Monthly Heatmap */}
-            <div className={`p-4 rounded-xl shadow-md ${cardClass}`}>
-              <h2 className="text-lg font-semibold mb-2">
-                Monthly Heatmap (Current Month)
-              </h2>
-              <p className="text-sm mb-4">
-                Darker squares mean more habits completed on that day.
-              </p>
-              <div className="grid grid-cols-7 gap-2 text-xs">
-                {monthHeatmap.map((dayObj) => {
-                  const intensity =
-                    dayObj.total === 0
-                      ? 0
-                      : dayObj.completed / dayObj.total; // 0–1
-                  let bg;
-                  if (intensity === 0) {
-                    bg = theme === "dark" ? "bg-gray-700" : "bg-gray-200";
-                  } else if (intensity < 0.34) {
-                    bg = "bg-green-300";
-                  } else if (intensity < 0.67) {
-                    bg = "bg-green-500";
-                  } else {
-                    bg = "bg-green-700";
-                  }
-
-                  return (
-                    <div
-                      key={dayObj.dateId}
-                      className={`h-10 rounded-md flex items-center justify-center ${bg} ${
-                        theme === "dark" ? "text-white" : "text-gray-900"
-                      }`}
-                      title={`${dayObj.dateId} - ${dayObj.completed}/${dayObj.total} habits`}
-                    >
-                      {dayObj.day}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Category Pie Chart */}
-            <div className={`p-4 rounded-xl shadow-md ${cardClass}`}>
-              <h2 className="text-lg font-semibold mb-2">Category-wise Completion</h2>
-              <p className="text-sm mb-4">
-                How many completions each habit category has over time.
-              </p>
-              {categoryData.length === 0 ? (
-                <p className="text-sm">No completion data yet.</p>
-              ) : (
-                <div className="w-full h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={categoryData}
-                        dataKey="value"
-                        nameKey="name"
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={80}
-                        label
-                      >
-                        {categoryData.map((entry, index) => (
-                          <Cell
-                            key={`cell-${index}`}
-                            fill={COLORS[index % COLORS.length]}
-                          />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                      <Legend />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Detailed Table */}
-          <div className={`p-4 rounded-xl shadow-md ${cardClass}`}>
-            <h2 className="text-lg font-semibold mb-2">Habit Details</h2>
-            <p className="text-sm mb-4">
-              Breakdown of each habit: total tracked days, completed, missed, and streak.
+          {/* Category Pie */}
+          <div className={`p-3 sm:p-4 rounded-xl shadow-md ${cardClass}`}>
+            <h2 className="text-base sm:text-lg font-semibold mb-1">
+              Category-wise Completion
+            </h2>
+            <p className="text-xs sm:text-sm mb-3">
+              Habit completion distribution
             </p>
-            {tableData.length === 0 ? (
-              <p>No habits data available.</p>
+
+            {categoryData.length === 0 ? (
+              <p className="text-sm">No completion data yet.</p>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm border-collapse">
-                  <thead>
-                    <tr
-                      className={
-                        theme === "dark"
-                          ? "bg-gray-700 text-gray-200"
-                          : "bg-gray-200 text-gray-800"
-                      }
+              <div className="w-full h-56 sm:h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={categoryData}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={70}
+                      label
                     >
-                      <th className="p-2 border-b">Habit</th>
-                      <th className="p-2 border-b">Category</th>
-                      <th className="p-2 border-b">Priority</th>
-                      <th className="p-2 border-b">Total Days</th>
-                      <th className="p-2 border-b">Completed</th>
-                      <th className="p-2 border-b">Missed</th>
-                      <th className="p-2 border-b">Completion %</th>
-                      <th className="p-2 border-b">Current Streak</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {tableData.map((row, idx) => (
-                      <tr
-                        key={row.id}
-                        className={
-                          theme === "dark"
-                            ? idx % 2 === 0
-                              ? "bg-gray-900"
-                              : "bg-gray-800"
-                            : idx % 2 === 0
-                            ? "bg-white"
-                            : "bg-gray-50"
-                        }
-                      >
-                        <td className="p-2 border-b">{row.name}</td>
-                        <td className="p-2 border-b">{row.category}</td>
-                        <td className="p-2 border-b">{row.priority}</td>
-                        <td className="p-2 border-b text-center">{row.totalDays}</td>
-                        <td className="p-2 border-b text-center">
-                          {row.completedDays}
-                        </td>
-                        <td className="p-2 border-b text-center">
-                          {row.missedDays}
-                        </td>
-                        <td className="p-2 border-b text-center">
-                          {row.completionPct}%
-                        </td>
-                        <td className="p-2 border-b text-center">
-                          {row.currentStreak} days
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                      {categoryData.map((entry, index) => (
+                        <Cell
+                          key={index}
+                          fill={COLORS[index % COLORS.length]}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend
+                      layout="horizontal"
+                      verticalAlign="bottom"
+                      height={36}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
               </div>
             )}
           </div>
         </div>
-      )}
-    </div>
-  );
+
+        {/* Detailed Table */}
+        <div className={`p-3 sm:p-4 rounded-xl shadow-md ${cardClass}`}>
+          <h2 className="text-base sm:text-lg font-semibold mb-1">
+            Habit Details
+          </h2>
+          <p className="text-xs sm:text-sm mb-3">
+            Overall habit performance summary
+          </p>
+
+          <div className="overflow-x-auto">
+            <table className="min-w-[700px] w-full text-xs sm:text-sm border-collapse">
+              <thead>
+                <tr
+                  className={
+                    theme === "dark"
+                      ? "bg-gray-700 text-gray-200"
+                      : "bg-gray-200 text-gray-800"
+                  }
+                >
+                  <th className="p-2">Habit</th>
+                  <th className="p-2 hidden sm:table-cell">Category</th>
+                  <th className="p-2">Priority</th>
+                  <th className="p-2 text-center">Total</th>
+                  <th className="p-2 text-center">Done</th>
+                  <th className="p-2 text-center hidden md:table-cell">
+                    Missed
+                  </th>
+                  <th className="p-2 text-center">%</th>
+                  <th className="p-2 text-center hidden lg:table-cell">
+                    Streak
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {tableData.map((row, idx) => (
+                  <tr
+                    key={row.id}
+                    className={
+                      theme === "dark"
+                        ? idx % 2 === 0
+                          ? "bg-gray-900"
+                          : "bg-gray-800"
+                        : idx % 2 === 0
+                        ? "bg-white"
+                        : "bg-gray-50"
+                    }
+                  >
+                    <td className="p-2">{row.name}</td>
+                    <td className="p-2 hidden sm:table-cell">
+                      {row.category}
+                    </td>
+                    <td className="p-2">{row.priority}</td>
+                    <td className="p-2 text-center">{row.totalDays}</td>
+                    <td className="p-2 text-center">
+                      {row.completedDays}
+                    </td>
+                    <td className="p-2 text-center hidden md:table-cell">
+                      {row.missedDays}
+                    </td>
+                    <td className="p-2 text-center">
+                      {row.completionPct}%
+                    </td>
+                    <td className="p-2 text-center hidden lg:table-cell">
+                      {row.currentStreak}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    )}
+  </div>
+);
 };
 
 export default CheckProgress;

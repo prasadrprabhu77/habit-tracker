@@ -20,12 +20,12 @@ const MainLayout = () => {
       <Navbar />
 
       {/* Sidebar + Main Content */}
-      <div className="flex flex-1">
-        {/* Sidebar fixed on left */}
+      <div className="flex flex-1 flex-col lg:flex-row">
+        {/* Sidebar */}
         <Sidebar />
 
         {/* Page content */}
-        <main className="flex-1 p-6 overflow-y-auto">
+        <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-y-auto">
           <Outlet />
         </main>
       </div>

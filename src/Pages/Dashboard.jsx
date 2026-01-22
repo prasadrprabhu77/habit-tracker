@@ -1,4 +1,4 @@
-// src/pages/TodayJournal.jsx
+
 import React, { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../context/AuthProvider";
 import { useTheme } from "../context/ThemeProvider";
@@ -16,21 +16,6 @@ import {
 import { db } from "../firebase";
 import { Check, X, Calendar, BarChart2 } from "lucide-react";
 
-/**
- * TodayJournal (A3 - dashboard style cards)
- *
- * Data:
- * - Habits: users/{uid}/habits/{habitId}
- * - Daily:   users/{uid}/dailyHabits/{YYYY-MM-DD}
- *
- * dailyDoc shape:
- * {
- *   date: "2025-12-04",
- *   completed: { "<habitId>": true, "<habitId2>": false },
- *   createdAt: Timestamp,
- *   lastUpdate: Timestamp
- * }
- */
 
 const Dashboard = () => {
   const { currentUser } = useAuth();
@@ -178,143 +163,198 @@ const Dashboard = () => {
     );
   }
 
-  return (
-    <div className="p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2
-            className={`text-2xl font-bold ${
-              theme === "dark" ? "text-white" : "text-gray-900"
-            } flex items-center gap-2`}
-          >
-            <Calendar size={20} /> Today — {todayId}
-          </h2>
-          <p className={`text-sm ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}>
-            Your habits for today. Mark them complete to build your streaks.
-          </p>
-        </div>
+return (
+  <div className="p-3 sm:p-4 md:p-6">
+    {/* Header */}
+    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+      {/* Left */}
+      <div>
+        <h2
+          className={`text-lg sm:text-xl md:text-2xl font-bold ${
+            theme === "dark" ? "text-white" : "text-gray-900"
+          } flex items-center gap-2`}
+        >
+          <Calendar size={20} />
+          Today — {todayId}
+        </h2>
 
-        <div className="flex items-center gap-4">
-          <div className="text-right">
-            <div className={`text-lg font-semibold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
-              {completedCount} / {totalHabits}
-            </div>
-            <div className={`text-sm ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}>
-              completed
-            </div>
-          </div>
-
-          <div className="w-48">
-            <div className="w-full h-3 rounded-full bg-gray-200 overflow-hidden">
-              <div
-                className={`h-3 rounded-full ${
-                  theme === "dark" ? "bg-green-400" : "bg-green-600"
-                }`}
-                style={{ width: `${progressPct}%` }}
-              />
-            </div>
-            <div className={`text-xs mt-1 ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}>
-              {progressPct}% complete
-            </div>
-          </div>
-        </div>
+        <p
+          className={`text-xs sm:text-sm ${
+            theme === "dark" ? "text-gray-300" : "text-gray-600"
+          }`}
+        >
+          Your habits for today. Mark them complete to build your streaks.
+        </p>
       </div>
 
-      {/* Cards grid */}
-      <div
-        className={`grid gap-4 ${
-          totalHabits === 0 ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-        }`}
-      >
-        {loading ? (
-          <div className={`${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>Loading...</div>
-        ) : totalHabits === 0 ? (
+      {/* Right */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+        <div className="text-left sm:text-right">
           <div
-            className={`p-6 rounded-lg shadow-md ${theme === "dark" ? "bg-gray-800 text-white" : "bg-white text-gray-900"}`}
+            className={`text-base sm:text-lg font-semibold ${
+              theme === "dark" ? "text-white" : "text-gray-900"
+            }`}
           >
-            <div className="flex items-center gap-3">
-              <BarChart2 />
-              <div>
-                <div className="font-bold">No habits yet</div>
-                <div className="text-sm text-gray-500">Add habits in Manage Habits to see them here.</div>
-              </div>
-            </div>
+            {completedCount} / {totalHabits}
           </div>
-        ) : (
-          habits.map((h) => {
-            const isDone = daily?.completed && !!daily.completed[h.id];
-            return (
-              <div
-                key={h.id}
-                className={`rounded-lg p-4 shadow-md ${priorityBorder(h.priority)} ${
-                  theme === "dark" ? "bg-gray-800 text-white" : "bg-white text-gray-900"
-                }`}
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold">{h.name}</h3>
-                      <div className="text-sm px-2 py-0.5 rounded-full bg-opacity-10" >
-                        <span className={`${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>{h.frequency}</span>
-                      </div>
-                    </div>
+          <div
+            className={`text-xs sm:text-sm ${
+              theme === "dark" ? "text-gray-300" : "text-gray-600"
+            }`}
+          >
+            completed
+          </div>
+        </div>
 
-                    <p className={`mt-2 text-sm ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}>
-                      {h.description || "No description"}
-                    </p>
+        <div className="w-full sm:w-48">
+          <div className="w-full h-2 sm:h-3 rounded-full bg-gray-200 overflow-hidden">
+            <div
+              className={`h-2 sm:h-3 rounded-full ${
+                theme === "dark" ? "bg-green-400" : "bg-green-600"
+              }`}
+              style={{ width: `${progressPct}%` }}
+            />
+          </div>
 
-                    <div className="mt-3 flex items-center gap-3">
-                      <div className="text-xs">
-                        <div className={`${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}>
-                          Priority: <span className="font-medium">{h.priority}</span>
-                        </div>
-                        <div className={`${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}>
-                          Category: <span className="font-medium">{h.category}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Action / Status */}
-                  <div className="flex flex-col items-center gap-3">
-                    <div
-                      className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                        isDone ? (theme === "dark" ? "bg-green-600" : "bg-green-500") : (theme === "dark" ? "bg-gray-700" : "bg-gray-100")
-                      }`}
-                    >
-                      {isDone ? <Check size={20} /> : <X size={20} />}
-                    </div>
-
-                    <button
-                      onClick={() => toggleCompletion(h.id, !isDone)}
-                      className={`px-3 py-1 rounded-md font-medium ${
-                        isDone
-                          ? "bg-red-500 text-white hover:bg-red-600"
-                          : "bg-blue-600 text-white hover:bg-blue-700"
-                      }`}
-                    >
-                      {isDone ? "Undo" : "Mark Complete"}
-                    </button>
-                  </div>
-                </div>
-
-                {/* small footer */}
-                <div className="mt-4 text-xs flex items-center justify-between">
-                  <div className={`${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}>
-                    Reminder: {h.reminderTime || "—"}
-                  </div>
-                  <div className={`${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}>
-                    Start: {h.startDate || "—"}
-                  </div>
-                </div>
-              </div>
-            );
-          })
-        )}
+          <div
+            className={`text-[10px] sm:text-xs mt-1 ${
+              theme === "dark" ? "text-gray-300" : "text-gray-600"
+            }`}
+          >
+            {progressPct}% complete
+          </div>
+        </div>
       </div>
     </div>
-  );
-};
 
+    {/* Cards grid */}
+    <div
+      className={`grid gap-4 ${
+        totalHabits === 0
+          ? "grid-cols-1"
+          : "grid-cols-1 sm:grid-cols-2 xl:grid-cols-3"
+      }`}
+    >
+      {loading ? (
+        <div className={`${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+          Loading...
+        </div>
+      ) : totalHabits === 0 ? (
+        <div
+          className={`p-6 rounded-lg shadow-md ${
+            theme === "dark" ? "bg-gray-800 text-white" : "bg-white text-gray-900"
+          }`}
+        >
+          <div className="flex items-center gap-3">
+            <BarChart2 />
+            <div>
+              <div className="font-bold">No habits yet</div>
+              <div className="text-sm text-gray-500">
+                Add habits in Manage Habits to see them here.
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        habits.map((h) => {
+          const isDone = daily?.completed && !!daily.completed[h.id];
+
+          return (
+            <div
+              key={h.id}
+              className={`rounded-lg p-4 shadow-md ${priorityBorder(
+                h.priority
+              )} ${
+                theme === "dark"
+                  ? "bg-gray-800 text-white"
+                  : "bg-white text-gray-900"
+              }`}
+            >
+              <div className="flex flex-col sm:flex-row gap-4">
+                {/* Left */}
+                <div className="flex-1">
+                  <div className="flex flex-wrap justify-between gap-2">
+                    <h3 className="text-base sm:text-lg font-semibold">
+                      {h.name}
+                    </h3>
+
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full ${
+                        theme === "dark"
+                          ? "bg-gray-700 text-gray-300"
+                          : "bg-gray-100 text-gray-700"
+                      }`}
+                    >
+                      {h.frequency}
+                    </span>
+                  </div>
+
+                  <p
+                    className={`mt-2 text-xs sm:text-sm ${
+                      theme === "dark"
+                        ? "text-gray-300"
+                        : "text-gray-600"
+                    }`}
+                  >
+                    {h.description || "No description"}
+                  </p>
+
+                  <div className="mt-3 text-xs space-y-1">
+                    <div>
+                      Priority:{" "}
+                      <span className="font-medium">{h.priority}</span>
+                    </div>
+                    <div>
+                      Category:{" "}
+                      <span className="font-medium">{h.category}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right */}
+                <div className="flex sm:flex-col items-center sm:items-end gap-3">
+                  <div
+                    className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center ${
+                      isDone
+                        ? theme === "dark"
+                          ? "bg-green-600"
+                          : "bg-green-500"
+                        : theme === "dark"
+                        ? "bg-gray-700"
+                        : "bg-gray-100"
+                    }`}
+                  >
+                    {isDone ? <Check size={18} /> : <X size={18} />}
+                  </div>
+
+                  <button
+                    onClick={() => toggleCompletion(h.id, !isDone)}
+                    className={`text-xs sm:text-sm px-3 py-1 rounded-md font-medium ${
+                      isDone
+                        ? "bg-red-500 hover:bg-red-600 text-white"
+                        : "bg-blue-600 hover:bg-blue-700 text-white"
+                    }`}
+                  >
+                    {isDone ? "Undo" : "Mark Complete"}
+                  </button>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="mt-4 text-[11px] flex flex-wrap justify-between gap-2">
+                <div className={`${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}>
+                  Reminder: {h.reminderTime || "—"}
+                </div>
+                <div className={`${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}>
+                  Start: {h.startDate || "—"}
+                </div>
+              </div>
+            </div>
+          );
+        })
+      )}
+    </div>
+  </div>
+);
+};
 export default Dashboard;
